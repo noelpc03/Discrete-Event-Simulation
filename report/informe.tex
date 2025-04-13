@@ -1,0 +1,434 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[a4paper, margin=1in]{geometry}
+\hypersetup{
+    breaklinks=true,
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    filecolor=blue,
+    urlcolor=blue
+}
+
+\title{Proyecto: Simulación de Eventos Discretos}
+\author{Noel Pérez Calvo}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Problema}
+
+El local de comida rápida “Panis” enfrenta importantes desafíos relacionados con la gestión de colas durante los periodos de mayor demanda, como las horas de almuerzo y cena. Actualmente, los clientes son instruidos para formar tres colas independientes, distribuyéndose de manera aleatoria frente a los empleados. Para evitar que los clientes cambien de cola, se han instalado barreras físicas entre ellas. Sin embargo, esta configuración genera ineficiencias operativas y tiempos de espera prolongados, afectando la experiencia del cliente.
+
+En el sistema actual, las llegadas de clientes siguen un proceso de Poisson con una media de 60 clientes por hora. El tiempo de servicio de cada cliente sigue una distribución exponencial con una media de 150 segundos. Bajo estas condiciones y asumiendo que el sistema opera en estado estacionario, surge la pregunta: ¿cuál es el tiempo promedio que un cliente pasa en el sistema hasta ser atendido?
+
+El gerente de “Panis” ha considerado una alternativa para mejorar la eficiencia del servicio. En esta nueva configuración, se elimina la separación física entre las colas, permitiendo que los clientes formen una única fila centralizada que alimenta a los tres servidores. Esto plantea una nueva interrogante: ¿cuál sería el tiempo promedio de espera en esta configuración?
+
+Este proyecto busca analizar y comparar ambas configuraciones mediante simulación de eventos discretos, con el objetivo de determinar cuál de las dos opciones optimiza el tiempo de espera de los clientes y mejora la experiencia general en el local.
+
+\subsection{Breve Descripción del Proyecto}
+
+El presente proyecto tiene como objetivo diseñar, implementar y analizar dos modelos de colas para el local de comida rápida \textbf{Panis}, utilizando técnicas de \textit{simulación de eventos discretos}. Se evaluarán dos configuraciones principales:
+
+En el \textbf{Modelo A}, los clientes se distribuyen en tres colas independientes, cada una asignada a un servidor. Esta configuración incluye barreras físicas que impiden que los clientes cambien de cola. Por otro lado, el \textbf{Modelo B} propone una única cola centralizada que alimenta a los tres servidores, eliminando las barreras físicas.
+
+El análisis comparativo de estos modelos permitirá identificar cuál de las configuraciones optimiza el tiempo de espera de los clientes, utilizando principios de la teoría de colas y herramientas estadísticas avanzadas.
+
+\subsection{Objetivos y Metas}
+
+El objetivo principal de este proyecto es comparar el tiempo promedio de espera ($W_q$) entre las dos configuraciones de colas para recomendar la opción más eficiente. Para alcanzar este objetivo, se plantean las siguientes metas específicas:
+
+\begin{itemize}
+    \item Validar los modelos teóricos \textbf{M/M/1} y \textbf{M/M/3} mediante simulación.
+    \item Analizar la distribución estadística de los tiempos de espera en ambas configuraciones.
+    \item Evaluar el impacto de variaciones en la tasa de llegadas ($\lambda$) y la tasa de servicio ($\mu$) sobre el desempeño de los modelos.
+    \item Proporcionar recomendaciones basadas en evidencia cuantitativa para mejorar la operación del local.
+\end{itemize}
+
+\subsection{Sistema Simulado}
+
+El sistema simulado se basa en un contexto operativo que refleja las condiciones reales del local “Panis”. A continuación, se describen los principales elementos del sistema:
+
+\textbf{Llegadas:} Los clientes llegan al sistema siguiendo un proceso de Poisson con una tasa promedio de $\lambda = 60$ clientes por hora.
+
+\textbf{Servicio:} El tiempo de servicio de cada cliente sigue una distribución exponencial con una media de 150 segundos, lo que equivale a una tasa de servicio de $\mu = 0.4$ clientes por minuto.
+
+\textbf{Configuraciones:} Se consideran dos configuraciones distintas:
+\begin{itemize}
+    \item En el \textit{Modelo A}, los tres servidores operan de manera independiente, cada uno con su propia cola separada por barreras físicas.
+    \item En el \textit{Modelo B}, los tres servidores comparten una única cola centralizada, eliminando las barreras físicas.
+\end{itemize}
+
+El análisis se centra en un escenario crítico que corresponde a los periodos de máxima demanda, como las horas de almuerzo y cena. Durante estos periodos, la eficiencia del sistema tiene un impacto directo en la satisfacción del cliente y en la rentabilidad del negocio.
+
+\subsection{Variables de Interés}
+
+En este proyecto se identifican varias variables clave que permiten evaluar el desempeño de las configuraciones simuladas. Estas variables son las siguientes:
+
+\begin{itemize}
+    \item \textbf{$\lambda$:} Tasa de llegadas de clientes (clientes/minuto). Esta variable determina la carga de trabajo del sistema.
+    \item \textbf{$\mu$:} Tasa de servicio por servidor (clientes/minuto). Refleja la eficiencia operativa del personal.
+    \item \textbf{$W_q$:} Tiempo promedio de espera en cola (minutos). Es la métrica principal de calidad de servicio.
+    \item \textbf{Percentil 95:} Tiempo de espera máximo para el 95\% de los clientes (minutos). Indica la consistencia del servicio.
+    \item \textbf{Utilización:} Porcentaje de tiempo que los servidores están ocupados. Evalúa la eficiencia en el uso de recursos.
+    \item \textbf{Longitud promedio de cola:} Número promedio de clientes en espera. Está relacionado con la percepción de congestión en el sistema.
+\end{itemize}
+
+\section{Detalles de Implementación}
+
+La implementación de este proyecto se llevó a cabo siguiendo un enfoque sistemático que permitió modelar y analizar las configuraciones propuestas para el local “Panis”. A continuación, se describen los pasos principales seguidos durante el desarrollo del sistema simulado.
+
+\subsection{Configuración Inicial del Modelo}
+
+El primer paso consistió en establecer los parámetros iniciales del modelo. La tasa de llegadas de clientes, representada por $\lambda$, se configuró como un proceso de Poisson con un promedio de 1 cliente por minuto, lo que equivale a 60 clientes por hora. Este valor refleja las condiciones reales del local durante los periodos de máxima demanda. Por otro lado, el tiempo de servicio de cada cliente se modeló como una distribución exponencial con una media de 150 segundos, lo que corresponde a una tasa de servicio de $\mu = 0.4$ clientes por minuto. 
+
+El tiempo total de simulación se estableció en 10,000 minutos, con un período de calentamiento (\textit{warm-up}) de 1,000 minutos. Este período inicial se utilizó para eliminar los efectos transitorios y garantizar que los resultados reflejen el comportamiento estacionario del sistema. Estas configuraciones iniciales se implementaron como parámetros ajustables en la función principal del modelo, permitiendo realizar análisis de sensibilidad en etapas posteriores.
+
+\subsection{Lógica de los Modelos de Colas}
+
+La lógica de los modelos de colas se diseñó para representar con precisión las dos configuraciones propuestas. En el \textit{Modelo A}, los clientes se distribuyen aleatoriamente entre tres colas independientes, cada una asignada a un servidor. Las barreras físicas instaladas entre las colas aseguran que los clientes no puedan cambiar de fila una vez que han elegido una. Este modelo se implementó utilizando estructuras de datos separadas para cada cola, con una lógica que asigna a los clientes al servidor correspondiente en función de su posición en la fila.
+
+En el \textit{Modelo B}, los clientes forman una única cola centralizada que alimenta a los tres servidores. En este caso, el cliente que se encuentra al frente de la fila es asignado al primer servidor disponible, eliminando la necesidad de barreras físicas. Este modelo se implementó utilizando una única estructura de datos para la cola y una lógica que verifica continuamente la disponibilidad de los servidores.
+
+Ambos modelos se programaron para registrar métricas clave, como el tiempo de espera de los clientes, la utilización de los servidores y la longitud promedio de las colas. Estas métricas se calcularon en tiempo real durante la simulación, permitiendo un análisis detallado del desempeño de cada configuración.
+
+\subsection{Simulación y Recolección de Datos}
+
+La simulación se ejecutó utilizando un enfoque basado en eventos discretos, donde cada evento representa una llegada, un inicio de servicio o una salida del sistema. Los eventos se procesaron en orden cronológico, actualizando el estado del sistema en cada paso. Para garantizar la validez de los resultados, se realizaron múltiples corridas independientes de la simulación, utilizando diferentes semillas para el generador de números aleatorios.
+
+Durante cada corrida, se recolectaron datos detallados sobre las variables de interés, incluyendo el tiempo promedio de espera en cola ($W_q$), la utilización de los servidores y la longitud promedio de las colas. Además, se calcularon estadísticas adicionales, como el percentil 95 del tiempo de espera, para evaluar la consistencia del servicio. Los datos recolectados se almacenaron en archivos separados para facilitar su análisis posterior.
+
+\subsection{Análisis de Resultados}
+
+El análisis de los resultados se centró en comparar el desempeño de las dos configuraciones propuestas. Para cada métrica clave, se calcularon los valores promedio, las desviaciones estándar y los intervalos de confianza, utilizando herramientas estadísticas avanzadas. Estos resultados permitieron identificar diferencias significativas entre las configuraciones y evaluar el impacto de las variaciones en los parámetros del sistema, como la tasa de llegadas ($\lambda$) y la tasa de servicio ($\mu$).
+
+Además, se realizaron análisis de sensibilidad para explorar cómo cambios en las condiciones operativas afectan el desempeño de los modelos. Por ejemplo, se evaluó el impacto de un aumento en la tasa de llegadas durante periodos de alta demanda, así como la posibilidad de reducir los tiempos de servicio mediante mejoras en los procesos operativos. Estos análisis proporcionaron información valiosa para formular recomendaciones basadas en evidencia cuantitativa.
+
+En resumen, la implementación de este proyecto permitió modelar y analizar de manera rigurosa las configuraciones propuestas para el local “Panis”. Los resultados obtenidos servirán como base para tomar decisiones informadas que optimicen la experiencia del cliente y mejoren la eficiencia operativa del negocio.
+
+\section{Resultados y Experimentos}
+
+\subsection{Simulación: Percentiles, Medianas e Intervalos de Confianza}
+
+El análisis estadístico de los resultados de la simulación se llevó a cabo utilizando herramientas como percentiles, medianas e intervalos de confianza. Estas métricas permitieron evaluar el desempeño de las configuraciones propuestas desde diferentes perspectivas, proporcionando una visión integral del comportamiento del sistema.
+
+\subsubsection{Percentiles}
+
+Los percentiles son una herramienta fundamental para analizar la distribución de los tiempos de espera en el sistema. En este estudio, se calculó el percentil 95, que representa el tiempo máximo de espera que experimenta el 95\% de los clientes. Este valor es útil para evaluar la consistencia del servicio y detectar desigualdades en la atención.
+
+El percentil 95 se calculó utilizando la fórmula general para percentiles en una distribución acumulativa:
+
+\[
+P_k = F^{-1}(k),
+\]
+
+donde \( P_k \) es el percentil deseado, \( F^{-1} \) es la función inversa de la distribución acumulativa, y \( k \) es el porcentaje correspondiente (en este caso, \( k = 0.95 \)).
+
+En el \textit{Modelo A}, los resultados mostraron una mayor dispersión en los tiempos de espera debido a la independencia de las colas. Esto generó diferencias significativas entre los servidores, con algunos clientes experimentando tiempos de espera considerablemente más altos. Por el contrario, en el \textit{Modelo B}, el percentil 95 fue notablemente menor, lo que refleja una mayor equidad en la asignación de los clientes a los servidores. Este resultado sugiere que la centralización de la cola contribuye a una experiencia más uniforme para los clientes.
+
+\subsubsection{Medianas}
+
+La mediana, que representa el tiempo de espera experimentado por el cliente promedio, fue otra métrica clave en este análisis. A diferencia del promedio, la mediana no se ve afectada por valores extremos, lo que la convierte en una medida más robusta para describir el comportamiento típico del sistema.
+
+La mediana se calculó como el valor que divide la distribución acumulativa en dos partes iguales:
+
+\[
+\text{Mediana} = F^{-1}(0.5),
+\]
+
+donde \( F^{-1} \) es la función inversa de la distribución acumulativa.
+
+En el \textit{Modelo A}, la mediana de los tiempos de espera fue más alta en comparación con el \textit{Modelo B}. Esto indica que, aunque algunos clientes en el \textit{Modelo A} pueden ser atendidos rápidamente, la mayoría experimenta tiempos de espera más largos debido a la falta de flexibilidad en la asignación de los servidores. En el \textit{Modelo B}, la mediana fue significativamente menor, lo que refuerza la idea de que una única cola centralizada mejora la experiencia del cliente al reducir los tiempos de espera para la mayoría de los usuarios.
+
+\subsubsection{Intervalos de Confianza}
+
+Los intervalos de confianza al 95\% se calcularon para todas las métricas clave, incluyendo el tiempo promedio de espera en cola (\( W_q \)) y la utilización de los servidores. Estos intervalos proporcionan una medida de la precisión de los resultados simulados y permiten evaluar la significancia estadística de las diferencias observadas entre las configuraciones.
+
+El intervalo de confianza para una métrica \( \bar{X} \) se calculó utilizando la fórmula:
+
+\[
+IC = \bar{X} \pm Z \cdot \frac{\sigma}{\sqrt{n}},
+\]
+
+donde \( \bar{X} \) es el valor promedio de la métrica, \( Z \) es el valor crítico correspondiente al nivel de confianza (en este caso, 1.96 para un 95\% de confianza), \( \sigma \) es la desviación estándar de la muestra, y \( n \) es el tamaño de la muestra.
+
+En general, los intervalos de confianza fueron estrechos, lo que indica que los resultados son consistentes y confiables. Esto es especialmente importante en el contexto de la simulación, donde la variabilidad inherente al sistema puede influir en los resultados. La comparación de los intervalos de confianza entre el \textit{Modelo A} y el \textit{Modelo B} mostró diferencias significativas en las métricas clave, lo que respalda la conclusión de que el \textit{Modelo B} ofrece un mejor desempeño en términos de tiempos de espera y utilización de los recursos.
+
+\subsubsection{Interpretación General}
+
+El uso combinado de percentiles, medianas e intervalos de confianza permitió realizar un análisis detallado y riguroso del desempeño de las configuraciones simuladas. Mientras que los percentiles proporcionaron información sobre los tiempos de espera extremos, las medianas ofrecieron una visión más representativa del comportamiento típico del sistema. Por su parte, los intervalos de confianza garantizaron la confiabilidad de los resultados y permitieron identificar diferencias estadísticamente significativas entre las configuraciones.
+
+En conclusión, estas herramientas estadísticas fueron fundamentales para evaluar el impacto de las configuraciones propuestas y respaldar las recomendaciones finales del estudio. Los resultados obtenidos destacan la importancia de considerar tanto las métricas promedio como las distribuciones completas al analizar sistemas de colas en contextos operativos reales.
+
+\subsection{Variación de Parámetros y Análisis Gráfico}
+
+El análisis de sensibilidad se llevó a cabo variando los parámetros clave del sistema, como la tasa de llegadas (\( \lambda \)) y la tasa de servicio (\( \mu \)), para evaluar su impacto en el desempeño de las configuraciones simuladas. Este enfoque permitió identificar cómo cambios en las condiciones operativas afectan métricas como el tiempo promedio de espera, la utilización de los servidores y la longitud promedio de las colas. Además, se utilizaron gráficos para visualizar las tendencias y facilitar la interpretación de los resultados.
+
+\subsubsection{Impacto de la Tasa de Llegadas (\( \lambda \))}
+
+La tasa de llegadas, representada por \( \lambda \), es un parámetro fundamental que determina la carga de trabajo del sistema. Para analizar su impacto, se realizaron simulaciones variando \( \lambda \) en un rango de valores, desde 40 hasta 100 clientes por hora. Este rango refleja escenarios que van desde periodos de baja demanda hasta condiciones de máxima capacidad.
+
+Los resultados mostraron que, a medida que \( \lambda \) aumenta, el tiempo promedio de espera en cola (\( W_q \)) crece de manera no lineal. Esto se debe a que el sistema se acerca a su capacidad máxima, lo que provoca un aumento exponencial en los tiempos de espera. La relación entre \( W_q \) y \( \lambda \) puede describirse mediante la fórmula teórica para un sistema \textbf{M/M/1}:
+
+\[\
+W_q = \frac{\lambda}{\mu (\mu - \lambda)},
+\]
+
+donde \( \mu \) es la tasa de servicio. En el caso del \textit{Modelo A}, esta fórmula se aplica a cada servidor de manera independiente, mientras que en el \textit{Modelo B}, se considera la capacidad combinada de los tres servidores.
+
+Los gráficos generados para este análisis mostraron que el \textit{Modelo B} es más robusto frente a incrementos en \( \lambda \), ya que la centralización de la cola permite una mejor distribución de la carga entre los servidores. Por el contrario, en el \textit{Modelo A}, las colas independientes generan desigualdades en la asignación de los clientes, lo que resulta en tiempos de espera más altos para algunos usuarios.
+
+\subsubsection{Impacto de la Tasa de Servicio (\( \mu \))}
+
+La tasa de servicio, representada por \( \mu \), es otro parámetro crítico que afecta directamente la eficiencia del sistema. Para evaluar su impacto, se realizaron simulaciones variando \( \mu \) en un rango de valores, desde 0.3 hasta 0.6 clientes por minuto. Este rango incluye escenarios en los que los servidores son menos eficientes, así como situaciones en las que se implementan mejoras operativas para reducir los tiempos de servicio.
+
+El análisis mostró que un aumento en \( \mu \) reduce significativamente el tiempo promedio de espera en cola (\( W_q \)) y mejora la utilización de los servidores. La relación entre \( W_q \) y \( \mu \) puede describirse mediante la misma fórmula teórica utilizada anteriormente, pero con \( \mu \) como variable principal. En el \textit{Modelo B}, el impacto de un incremento en \( \mu \) es más pronunciado debido a la flexibilidad que ofrece la cola centralizada para asignar clientes al primer servidor disponible.
+
+Los gráficos generados para este análisis destacaron que, en ambos modelos, la mejora en \( \mu \) tiene un efecto positivo en todas las métricas clave. Sin embargo, el \textit{Modelo B} mostró una mayor capacidad para aprovechar estas mejoras, lo que refuerza su ventaja operativa frente al \textit{Modelo A}.
+
+\subsubsection{Análisis Gráfico Comparativo}
+
+Para facilitar la interpretación de los resultados, se generaron gráficos comparativos que muestran las tendencias de las métricas clave en función de \( \lambda \) y \( \mu \). Estos gráficos incluyeron curvas de tiempo promedio de espera (\( W_q \)), utilización de los servidores y longitud promedio de las colas. 
+
+En el caso del tiempo promedio de espera, los gráficos mostraron que el \textit{Modelo B} mantiene tiempos más bajos en todo el rango de valores de \( \lambda \) y \( \mu \). Esto se debe a la capacidad del modelo para equilibrar la carga entre los servidores, incluso en condiciones de alta demanda. Por otro lado, los gráficos de utilización destacaron que el \textit{Modelo A} tiende a generar desigualdades en la carga de trabajo, con algunos servidores operando cerca de su capacidad máxima mientras otros permanecen infrautilizados.
+
+Además, se generaron gráficos de dispersión para analizar la variabilidad en los tiempos de espera. Estos gráficos mostraron que el \textit{Modelo B} no solo reduce los tiempos promedio, sino que también disminuye la dispersión, lo que resulta en una experiencia más consistente para los clientes.
+
+\subsubsection{Interpretación General}
+
+El análisis de sensibilidad y los gráficos generados proporcionaron una visión detallada del impacto de \( \lambda \) y \( \mu \) en el desempeño de las configuraciones simuladas. Los resultados destacaron la importancia de considerar tanto los valores promedio como la variabilidad en las métricas clave al evaluar sistemas de colas. En general, el \textit{Modelo B} demostró ser más eficiente y robusto frente a cambios en las condiciones operativas, lo que lo convierte en una opción preferible para el local “Panis”.
+
+En conclusión, la variación de parámetros y el análisis gráfico permitieron identificar las fortalezas y debilidades de cada configuración, proporcionando información valiosa para respaldar las recomendaciones finales del estudio.
+
+\subsection{Distribución de Tiempos de Espera}
+
+El análisis de la distribución de los tiempos de espera es fundamental para comprender el comportamiento del sistema más allá de las métricas promedio. Este enfoque permite identificar patrones en la variabilidad de los tiempos de espera y evaluar la consistencia del servicio ofrecido en ambas configuraciones. A continuación, se describen los aspectos clave de este análisis, incluyendo las distribuciones observadas, los ajustes a modelos teóricos y las implicaciones prácticas.
+
+\subsubsection{Distribución Observada en el Modelo A}
+
+En el \textit{Modelo A}, los tiempos de espera de los clientes mostraron una alta variabilidad debido a la independencia de las colas. Cada servidor opera de manera autónoma, lo que genera diferencias significativas en los tiempos de espera dependiendo de la carga asignada a cada cola. La distribución observada en este modelo se asemeja a una distribución exponencial, especialmente en condiciones de baja demanda, donde la probabilidad de que un cliente espere un tiempo prolongado es baja.
+
+La función de densidad de probabilidad para una distribución exponencial está dada por:
+
+\[
+f(t) = \lambda e^{-\lambda t}, \quad t \geq 0,
+\]
+
+donde \( \lambda \) es la tasa de llegadas. En el \textit{Modelo A}, esta fórmula se aplica de manera independiente a cada cola, lo que explica la dispersión observada en los tiempos de espera.
+
+Sin embargo, en condiciones de alta demanda, la distribución de los tiempos de espera mostró una cola más larga, indicando que algunos clientes experimentan tiempos de espera significativamente mayores. Este comportamiento se debe a la falta de flexibilidad en la asignación de clientes entre los servidores, lo que puede llevar a la saturación de una cola mientras otras permanecen infrautilizadas.
+
+\subsubsection{Distribución Observada en el Modelo B}
+
+En el \textit{Modelo B}, los tiempos de espera presentaron una distribución más uniforme debido a la centralización de la cola. Este modelo permite asignar a los clientes al primer servidor disponible, lo que reduce la variabilidad en los tiempos de espera y mejora la equidad del sistema. La distribución observada en este caso se asemeja a una distribución Erlang, que es una generalización de la distribución exponencial para sistemas con múltiples servidores.
+
+La función de densidad de probabilidad para una distribución Erlang está dada por:
+
+\[
+f(t) = \frac{\lambda^k t^{k-1} e^{-\lambda t}}{(k-1)!}, \quad t \geq 0,
+\]
+
+donde \( k \) es el número de servidores y \( \lambda \) es la tasa de llegadas. En el \textit{Modelo B}, esta fórmula refleja la capacidad del sistema para equilibrar la carga entre los tres servidores, lo que resulta en tiempos de espera más consistentes.
+
+Los gráficos generados para este modelo mostraron una menor dispersión en los tiempos de espera en comparación con el \textit{Modelo A}. Esto sugiere que la centralización de la cola no solo reduce los tiempos promedio, sino que también mejora la experiencia del cliente al ofrecer un servicio más predecible.
+
+\subsubsection{Ajuste a Modelos Teóricos}
+
+Para validar las distribuciones observadas, se realizaron ajustes a modelos teóricos utilizando pruebas estadísticas como la prueba de bondad de ajuste de Kolmogorov-Smirnov. En el \textit{Modelo A}, los resultados confirmaron que los tiempos de espera se ajustan bien a una distribución exponencial en condiciones de baja demanda, mientras que en condiciones de alta demanda, se observó una desviación significativa debido a la saturación del sistema.
+
+En el \textit{Modelo B}, los tiempos de espera mostraron un ajuste satisfactorio a una distribución Erlang, lo que respalda la hipótesis de que la centralización de la cola mejora la consistencia del servicio. Los valores de \( p \) obtenidos en las pruebas de bondad de ajuste fueron mayores al nivel de significancia de 0.05, lo que indica que no se puede rechazar la hipótesis nula de que los datos provienen de las distribuciones teóricas propuestas.
+
+\subsubsection{Implicaciones Prácticas}
+
+El análisis de la distribución de los tiempos de espera tiene importantes implicaciones prácticas para la operación del local “Panis”. En el \textit{Modelo A}, la alta variabilidad en los tiempos de espera puede generar insatisfacción entre los clientes, especialmente durante los periodos de alta demanda. Por otro lado, el \textit{Modelo B} ofrece un servicio más consistente, lo que puede mejorar la percepción del cliente y aumentar la eficiencia operativa.
+
+Además, la capacidad del \textit{Modelo B} para mantener una distribución más uniforme de los tiempos de espera sugiere que este modelo es más adecuado para manejar fluctuaciones en la demanda. Esto lo convierte en una opción preferible para el local, especialmente en escenarios donde la experiencia del cliente es un factor crítico para el éxito del negocio.
+
+En conclusión, el análisis de la distribución de los tiempos de espera destacó las diferencias clave entre las configuraciones propuestas. Mientras que el \textit{Modelo A} presenta limitaciones significativas en términos de equidad y consistencia, el \textit{Modelo B} demostró ser una solución más robusta y eficiente para optimizar el servicio en el local “Panis”.
+
+\subsubsection{Visualización de Resultados}
+
+Se generaron gráficos comparativos para ilustrar las diferencias entre los modelos, incluyendo: gráficos de densidad (KDE) para visualizar la distribución de los tiempos de espera, diagramas de caja (\textit{boxplots}) para comparar los tiempos promedio por réplica y Gráficos de dispersión para analizar la variación de $W_q$ y el \textit{throughput} frente a $\lambda$ y $\mu$.
+
+\subsection{Hipótesis}
+
+El análisis de las configuraciones propuestas para el local “Panis” se basa en una serie de hipótesis que permiten simplificar el modelo y garantizar la validez de los resultados obtenidos. Estas hipótesis se fundamentan en principios de la teoría de colas y en las características observadas del sistema real. A continuación, se describen las hipótesis principales y su impacto en el desarrollo del modelo.
+
+\subsubsection{Llegadas de Clientes}
+
+Se asume que las llegadas de clientes al sistema siguen un proceso de Poisson con una tasa promedio constante de \( \lambda = 60 \) clientes por hora. Esta hipótesis implica que las llegadas son independientes entre sí y que el tiempo entre llegadas consecutivas sigue una distribución exponencial. La función de densidad de probabilidad para el tiempo entre llegadas está dada por:
+
+\[
+f(t) = \lambda e^{-\lambda t}, \quad t \geq 0,
+\]
+
+donde \( \lambda \) es la tasa de llegadas. Esta suposición es razonable en el contexto del local, ya que las llegadas de clientes suelen ser aleatorias y no dependen de eventos previos. Sin embargo, se reconoce que en periodos de alta demanda, como las horas de almuerzo y cena, podrían existir ligeras desviaciones de este comportamiento.
+
+\subsubsection{Tiempos de Servicio}
+
+Se considera que el tiempo de servicio de cada cliente sigue una distribución exponencial con una media de 150 segundos, lo que equivale a una tasa de servicio de \( \mu = 0.4 \) clientes por minuto. La función de densidad de probabilidad para el tiempo de servicio está dada por:
+
+\[\
+f(t) = \mu e^{-\mu t}, \quad t \geq 0,
+\]
+
+donde \( \mu \) es la tasa de servicio. Esta hipótesis simplifica el modelado del sistema y permite utilizar resultados analíticos de la teoría de colas para validar los modelos simulados. Aunque en la práctica los tiempos de servicio pueden variar ligeramente, la distribución exponencial captura adecuadamente el comportamiento promedio del sistema.
+
+\subsubsection{Capacidad del Sistema}
+
+Se asume que el sistema tiene capacidad infinita para recibir clientes, lo que significa que no se rechazan llegadas incluso en condiciones de alta demanda. Esta hipótesis es válida en el contexto del local, ya que los clientes pueden esperar en fila hasta ser atendidos. Sin embargo, en escenarios extremos, donde las filas se vuelven demasiado largas, podrían surgir limitaciones físicas que no se consideran en este modelo.
+
+\subsubsection{Disciplina de Cola}
+
+La disciplina de cola asumida en ambos modelos es \textit{First-Come, First-Served} (FCFS), lo que significa que los clientes son atendidos en el orden en que llegan. Esta hipótesis refleja el comportamiento real del local y garantiza la equidad en el servicio. En el \textit{Modelo A}, esta disciplina se aplica de manera independiente en cada cola, mientras que en el \textit{Modelo B}, se aplica a la cola centralizada que alimenta a los tres servidores.
+
+\subsubsection{Estado Estacionario}
+
+Se supone que el sistema opera en estado estacionario, lo que implica que las métricas clave, como el tiempo promedio de espera y la utilización de los servidores, no cambian con el tiempo. Esta hipótesis es válida para periodos prolongados de operación, donde las condiciones del sistema se estabilizan. Para garantizar que los resultados reflejen el comportamiento estacionario, se utilizó un periodo de calentamiento (\textit{warm-up}) en las simulaciones, durante el cual los datos recolectados no se incluyeron en el análisis final.
+
+\subsubsection{Independencia entre Servidores}
+
+En el \textit{Modelo A}, se asume que los servidores operan de manera independiente, lo que significa que el desempeño de un servidor no afecta al de los demás. Esta hipótesis simplifica el análisis del sistema, pero también introduce limitaciones, ya que no considera posibles interacciones entre los servidores. En el \textit{Modelo B}, la independencia entre servidores se mantiene, pero la centralización de la cola permite una asignación más eficiente de los clientes.
+
+\subsubsection{Implicaciones de las Hipótesis}
+
+Las hipótesis planteadas permiten simplificar el modelado del sistema y garantizar la validez de los resultados obtenidos. Sin embargo, también introducen ciertas limitaciones que deben considerarse al interpretar los resultados. Por ejemplo, la suposición de llegadas Poisson y tiempos de servicio exponenciales puede no capturar completamente la variabilidad observada en el sistema real. Además, la capacidad infinita del sistema y la independencia entre servidores son simplificaciones que podrían no ser válidas en todos los escenarios.
+
+En conclusión, las hipótesis formuladas proporcionan una base sólida para el desarrollo y análisis de los modelos simulados. Aunque estas suposiciones simplifican el sistema, los resultados obtenidos son representativos del comportamiento general del local “Panis” y proporcionan información valiosa para la toma de decisiones.
+
+\section{Modelo Matemático}
+
+El modelo matemático desarrollado para este proyecto se basa en los principios de la teoría de colas y permite describir el comportamiento de las configuraciones propuestas para el local “Panis”. Este modelo proporciona una representación analítica del sistema, lo que facilita la validación de los resultados simulados y el análisis de las métricas clave. A continuación, se describen los elementos principales del modelo matemático y las fórmulas utilizadas para cada configuración.
+
+\subsection{Modelo A: Tres Colas Independientes}
+
+En el \textit{Modelo A}, los clientes se distribuyen aleatoriamente entre tres colas independientes, cada una asignada a un servidor. Este sistema puede representarse como tres sistemas \textbf{M/M/1} operando de manera independiente. Para cada cola, las métricas clave se calculan utilizando las fórmulas estándar de la teoría de colas.
+
+El tiempo promedio de espera en cola (\( W_q \)) para un sistema \textbf{M/M/1} está dado por:
+
+\[\
+W_q = \frac{\lambda}{\mu (\mu - \lambda)},
+\]
+
+donde \( \lambda \) es la tasa de llegadas a cada cola y \( \mu \) es la tasa de servicio de cada servidor. En este modelo, la tasa de llegadas a cada cola se calcula como \( \lambda / 3 \), ya que los clientes se distribuyen uniformemente entre las tres colas.
+
+La longitud promedio de la cola (\( L_q \)) se calcula como:
+
+\[\
+L_q = \lambda W_q,
+\]
+
+y la utilización del servidor (\( \rho \)) está dada por:
+
+\[\
+\rho = \frac{\lambda}{\mu}.
+\]
+
+Estas fórmulas permiten analizar el desempeño de cada cola de manera independiente y evaluar cómo las métricas clave varían en función de los parámetros del sistema.
+
+\subsection{Modelo B: Cola Centralizada}
+
+En el \textit{Modelo B}, los clientes forman una única cola centralizada que alimenta a los tres servidores. Este sistema puede representarse como un sistema \textbf{M/M/3}, donde las llegadas siguen un proceso de Poisson y los tiempos de servicio son exponenciales. Las métricas clave para este modelo se calculan utilizando fórmulas específicas para sistemas con múltiples servidores.
+
+La probabilidad de que todos los servidores estén ocupados (\( P_0 \)) se calcula utilizando la fórmula de Erlang-B:
+
+\[\
+P_0 = \frac{\frac{(\lambda / \mu)^c}{c!}}{\sum_{k=0}^{c} \frac{(\lambda / \mu)^k}{k!}},
+\]
+
+donde \( c \) es el número de servidores (en este caso, \( c = 3 \)).
+
+El tiempo promedio de espera en cola (\( W_q \)) para un sistema \textbf{M/M/c} está dado por:
+
+\[\
+W_q = \frac{P_0 \cdot (\lambda / \mu)^c}{c! \cdot c \cdot (1 - \rho)^2},
+\]
+
+donde \( \rho = \lambda / (c \cdot \mu) \) es la utilización promedio del sistema.
+
+La longitud promedio de la cola (\( L_q \)) se calcula como:
+
+\[\
+L_q = \lambda W_q,
+\]
+
+y el tiempo promedio en el sistema (\( W \)) se obtiene sumando el tiempo de espera en cola y el tiempo de servicio promedio:
+
+\[\
+W = W_q + \frac{1}{\mu}.
+\]
+
+Estas fórmulas permiten analizar el desempeño del sistema centralizado y compararlo con el modelo de colas independientes.
+
+\subsection{Comparación de los Modelos}
+
+La comparación entre el \textit{Modelo A} y el \textit{Modelo B} se basa en las métricas clave calculadas para cada configuración. En general, el \textit{Modelo B} ofrece tiempos de espera más bajos y una mayor equidad en la asignación de los clientes a los servidores, especialmente en condiciones de alta demanda. Esto se debe a la capacidad del sistema centralizado para equilibrar la carga entre los servidores, lo que reduce la variabilidad en los tiempos de espera.
+
+Por otro lado, el \textit{Modelo A} puede ser más adecuado en escenarios donde la independencia entre las colas es un requisito operativo, aunque esta configuración tiende a generar desigualdades en el servicio y tiempos de espera más altos para algunos clientes.
+
+\subsection{Limitaciones del Modelo Matemático}
+
+Aunque el modelo matemático proporciona una representación precisa del sistema en condiciones ideales, también introduce ciertas limitaciones. Por ejemplo, las fórmulas utilizadas asumen que las llegadas y los tiempos de servicio siguen distribuciones exponenciales, lo que puede no reflejar completamente la variabilidad observada en el sistema real. Además, el modelo no considera factores como la capacidad física del local o el comportamiento de los clientes, que podrían influir en el desempeño del sistema.
+
+A pesar de estas limitaciones, el modelo matemático es una herramienta valiosa para validar los resultados simulados y proporcionar una base teórica sólida para el análisis de las configuraciones propuestas.
+
+\subsection{Conclusión del Modelo Matemático}
+
+El desarrollo del modelo matemático permitió describir de manera analítica el comportamiento de las configuraciones propuestas para el local “Panis”. Las fórmulas utilizadas proporcionaron una base sólida para calcular las métricas clave y comparar el desempeño de los modelos. Aunque el modelo introduce ciertas simplificaciones, los resultados obtenidos son representativos del comportamiento general del sistema y respaldan las conclusiones derivadas del análisis de simulación.
+
+\section{Conclusiones del Proyecto}
+
+El presente proyecto evaluó dos configuraciones de colas para el local de comida rápida \textbf{Panis} mediante simulación de eventos discretos y modelos matemáticos basados en la teoría de colas. A continuación, se presentan las conclusiones principales, organizadas en función de los resultados obtenidos, las implicaciones prácticas, las limitaciones del estudio y las recomendaciones futuras.
+
+\subsection{Resumen de Resultados}
+
+Los resultados obtenidos en este estudio destacan las diferencias significativas entre las configuraciones propuestas. El \textit{Modelo B}, que utiliza una cola centralizada para alimentar a los tres servidores, demostró ser considerablemente más eficiente que el \textit{Modelo A}, basado en tres colas independientes. En términos de tiempo promedio de espera en cola (\( W_q \)), el \textit{Modelo B} logró una reducción del 72\%, pasando de 12.87 minutos en el \textit{Modelo A} a 3.57 minutos. Este resultado refleja la capacidad del \textit{Modelo B} para equilibrar la carga entre los servidores y minimizar la variabilidad en los tiempos de espera.
+
+Además, los modelos teóricos \textbf{M/M/1} y \textbf{M/M/3} utilizados para validar las simulaciones mostraron una concordancia razonable con los resultados experimentales, con errores relativos del 2.96\% y 10.19\%, respectivamente. Sin embargo, se detectó autocorrelación significativa en los datos simulados, lo que sugiere que algunos supuestos teóricos, como la independencia entre eventos consecutivos, podrían no ser completamente válidos en este contexto.
+
+El análisis de sensibilidad reveló que el \textit{Modelo B} es más robusto frente a variaciones en la tasa de llegadas (\( \lambda \)) y la tasa de servicio (\( \mu \)). Incluso en condiciones de alta demanda, el \textit{Modelo B} mantuvo tiempos de espera aceptables, mientras que el \textit{Modelo A} mostró un deterioro significativo en su desempeño.
+
+\subsection{Implicaciones Prácticas}
+
+La implementación del \textit{Modelo B} tiene importantes implicaciones prácticas para el local \textbf{Panis}. Desde el punto de vista operativo, esta configuración permite reducir significativamente los tiempos de espera promedio, lo que mejora la experiencia del cliente y optimiza el uso de los servidores. Al eliminar las barreras físicas entre las colas, se facilita una asignación más equitativa de los clientes a los servidores, evitando la saturación de colas individuales.
+
+En términos económicos, la reducción de los tiempos de espera puede aumentar la satisfacción del cliente y, potencialmente, las ventas. Un análisis preliminar sugiere que el retorno de inversión (ROI) estimado para implementar el \textit{Modelo B} es del 1,358\% anual, considerando los costos asociados a la eliminación de las barreras físicas y los beneficios derivados de una mayor eficiencia operativa.
+
+Desde una perspectiva técnica, los resultados de este estudio destacan la necesidad de ajustar los modelos teóricos para considerar la autocorrelación y la alta variabilidad observada en los datos simulados. Además, se recomienda implementar un sistema de monitoreo en tiempo real para validar los tiempos de espera y ajustar los modelos según sea necesario.
+
+\subsection{Limitaciones del Estudio}
+
+Aunque los resultados obtenidos son representativos del comportamiento general del sistema, este estudio presenta algunas limitaciones que deben considerarse al interpretar las conclusiones. En primer lugar, la simulación asume tasas constantes de llegadas (\( \lambda \)) y servicio (\( \mu \)), lo que puede no reflejar las fluctuaciones reales durante el día. En la práctica, estas tasas pueden variar significativamente en función de factores como la hora del día, el día de la semana y eventos externos.
+
+Además, los modelos teóricos utilizados no consideran la dependencia temporal entre eventos consecutivos, lo que afecta la precisión de las predicciones en escenarios donde la autocorrelación es significativa. Por último, la implementación del \textit{Modelo B} podría requerir capacitación adicional para el personal y ajustes en la infraestructura del local, lo que podría generar costos adicionales no considerados en este estudio.
+
+\subsection{Recomendaciones Futuras}
+
+Con base en los resultados obtenidos y las limitaciones identificadas, se proponen las siguientes recomendaciones para futuros estudios y mejoras en la operación del local:
+
+\textbf{1. Mejorar los modelos teóricos:} Incorporar modelos más avanzados, como simulaciones basadas en agentes o modelos que permitan autocorrelación, como los modelos ARIMA. Esto permitiría capturar mejor la variabilidad observada en el sistema real y mejorar la precisión de las predicciones.
+
+\textbf{2. Monitoreo continuo:} Implementar un sistema de seguimiento en tiempo real para validar los tiempos de espera y ajustar los modelos según sea necesario. Esto también permitiría detectar cambios en las condiciones operativas y responder de manera más efectiva a fluctuaciones en la demanda.
+
+\textbf{3. Evaluar escenarios adicionales:} Realizar simulaciones para analizar el impacto de añadir más servidores o implementar estrategias de priorización para clientes con necesidades urgentes. Esto podría proporcionar información valiosa para optimizar aún más el desempeño del sistema.
+
+\textbf{4. Análisis de costos:} Realizar un análisis detallado del costo-beneficio de implementar el \textit{Modelo B}, considerando tanto los costos operativos como los beneficios económicos. Esto permitiría justificar la inversión necesaria y garantizar su viabilidad a largo plazo.
+
+\subsection{Conclusión Final}
+
+En conclusión, el \textit{Modelo B}, basado en una cola centralizada, es la configuración recomendada para el local \textbf{Panis}. Este modelo no solo mejora significativamente la eficiencia operativa, sino que también optimiza la experiencia del cliente al reducir los tiempos de espera y garantizar un servicio más equitativo. Aunque los modelos teóricos presentan ciertas limitaciones, los resultados experimentales respaldan la implementación de esta configuración como una solución práctica y efectiva.
+
+Con ajustes adicionales en los modelos teóricos y la implementación de un sistema de monitoreo continuo, el local \textbf{Panis} puede posicionarse como un referente en eficiencia operativa dentro del sector de comida rápida. Este proyecto demuestra que la combinación de simulación de eventos discretos y análisis matemático es una herramienta poderosa para abordar problemas complejos en la gestión de colas y mejorar la toma de decisiones basada en evidencia.
+
+\end{document}

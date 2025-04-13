@@ -1,0 +1,10 @@
+__pycache__
+informe.aux
+informe.fls
+informe.log
+informe.toc
+informe.fdb_latexmk
+informe.out
+informe.synctex.gz
+src
+sim_proy_1.md
